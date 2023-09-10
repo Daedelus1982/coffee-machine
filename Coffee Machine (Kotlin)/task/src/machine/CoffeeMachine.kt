@@ -16,19 +16,43 @@ class CoffeeMachine {
         println("$$money of money")
     }
 
+    private fun enoughResource(coffeeMachineResource: Int, coffeeResource: Int): Boolean =
+        coffeeMachineResource - coffeeResource >= 0
+
+    private fun enoughResources(coffee: Coffee): Boolean {
+
+        if (enoughResource(water, coffee.water) &&
+            enoughResource(milk, coffee.milk) &&
+            enoughResource(beans, coffee.beans) &&
+            cups > 1) return true
+
+        val notEnough =  when {
+            !enoughResource(water, coffee.water) -> "Sorry, not enough water!"
+            !enoughResource(milk, coffee.milk) -> "Sorry, not enough milk!"
+            !enoughResource(beans, coffee.beans) -> "Sorry, not enough coffee beans!"
+            cups < 1 -> "Sorry, not enough disposable cups"
+            else -> "Sorry, not enough"
+        }
+        println(notEnough)
+        return false
+    }
+
     fun buy() {
         println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:")
         val coffee = when(readln()) {
             "1" -> Espresso()
             "2" -> Latte()
             "3" -> Cappuccino()
-            else -> NoCoffee()
+            else -> return
         }
-        water -= coffee.water
-        milk -= coffee.milk
-        beans -= coffee.beans
-        cups--
-        money += coffee.cost
+        if (enoughResources(coffee)) {
+            println("I have enough resources, making you a coffee!")
+            water -= coffee.water
+            milk -= coffee.milk
+            beans -= coffee.beans
+            cups--
+            money += coffee.cost
+        }
     }
 
     fun fill() {
@@ -79,5 +103,3 @@ class Cappuccino: Coffee {
     override val beans = 12
     override val cost = 6
 }
-
-class NoCoffee: Coffee
