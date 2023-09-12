@@ -5,101 +5,50 @@ class CoffeeMachine {
     private var milk = 540
     private var beans = 120
     private var money = 550
-    private var cups = 9
+    var cups = 9
+        private set
 
-    fun printContents() {
-        println("The coffee machine has:")
-        println("$water ml of water")
-        println("$milk ml of milk")
-        println("$beans g of coffee beans")
-        println("$cups disposable cups")
-        println("$$money of money")
+    fun contentsString():  String {
+        return """|
+            |The coffee machine has:
+            |$water ml of water
+            |$milk ml of milk
+            |$beans g of coffee beans
+            |$cups disposable cups
+            |$$money of money""".trimMargin()
     }
 
-    private fun enoughResource(coffeeMachineResource: Int, coffeeResource: Int): Boolean =
-        coffeeMachineResource - coffeeResource >= 0
+    fun enoughWater(coffee: Coffee): Boolean = water - coffee.water >= 0
 
-    private fun enoughResources(coffee: Coffee): Boolean {
+    fun enoughMilk(coffee: Coffee): Boolean = milk - coffee.milk >= 0
 
-        if (enoughResource(water, coffee.water) &&
-            enoughResource(milk, coffee.milk) &&
-            enoughResource(beans, coffee.beans) &&
-            cups > 1) return true
+    fun enoughBeans(coffee: Coffee): Boolean = beans - coffee.beans >= 0
 
-        val notEnough =  when {
-            !enoughResource(water, coffee.water) -> "Sorry, not enough water!"
-            !enoughResource(milk, coffee.milk) -> "Sorry, not enough milk!"
-            !enoughResource(beans, coffee.beans) -> "Sorry, not enough coffee beans!"
-            cups < 1 -> "Sorry, not enough disposable cups"
-            else -> "Sorry, not enough"
-        }
-        println(notEnough)
-        return false
+    fun buy(coffee: Coffee) {
+        water -= coffee.water
+        milk -= coffee.milk
+        beans -= coffee.beans
+        cups--
+        money += coffee.cost
     }
 
-    fun buy() {
-        println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:")
-        val coffee = when(readln()) {
-            "1" -> Espresso()
-            "2" -> Latte()
-            "3" -> Cappuccino()
-            else -> return
-        }
-        if (enoughResources(coffee)) {
-            println("I have enough resources, making you a coffee!")
-            water -= coffee.water
-            milk -= coffee.milk
-            beans -= coffee.beans
-            cups--
-            money += coffee.cost
-        }
+    fun fill(water: Int, milk: Int, beans: Int, cups: Int) {
+        this.water += water
+        this.milk += milk
+        this.beans += beans
+        this.cups += cups
     }
 
-    fun fill() {
-        println("Write how many ml of water you want to add:")
-        water += readln().toInt()
-        println("Write how many ml of milk you want to add:")
-        milk += readln().toInt()
-        println("Write how many grams of coffee beans you want to add:")
-        beans += readln().toInt()
-        println("Write how many disposable cups you want to add:")
-        cups += readln().toInt()
-    }
-
-    fun take() {
+    fun take(): Int {
         val taken = money
         money = 0
-        println("I gave you $$taken")
+        return taken
     }
 }
 
-interface Coffee {
-    val water: Int
-        get() = 0
-    val milk: Int
-        get() = 0
-    val beans: Int
-        get() = 0
-    val cost: Int
-        get() = 0
+enum class Coffee(val water: Int = 0, val milk: Int = 0, val beans: Int = 0, val cost: Int = 0) {
+    ESPRESSO(water = 250, beans = 16, cost = 4),
+    LATTE(water = 350, milk = 75, beans = 20, cost = 7),
+    CAPPUCCINO(water = 200, milk = 100, beans = 12, cost = 6)
 }
 
-class Espresso: Coffee {
-    override val water = 250
-    override val beans = 16
-    override val cost = 4
-}
-
-class Latte: Coffee {
-    override val water = 350
-    override val milk = 75
-    override val beans = 20
-    override val cost = 7
-}
-
-class Cappuccino: Coffee {
-    override val water = 200
-    override val milk = 100
-    override val beans = 12
-    override val cost = 6
-}
